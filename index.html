@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="main-container">
+      <div class="header">
+        <h1>User Data</h1>
+      </div>
+
+      <div class="input-section">
+        <form class="form">
+          <input
+            type="text"
+            placeholder="Enter FirstName"
+            name="firstname"
+            id="firstname"
+          />
+          <input
+            type="text"
+            placeholder="Enter LastName"
+            name="lastname"
+            id="lastname"
+          />
+          <input
+            type="email"
+            placeholder="Enter Email"
+            name="email"
+            id="email"
+          />
+          <input
+            type="text"
+            placeholder="Enter Phone Number"
+            name="phonenumber"
+            id="phonenumber"
+          />
+          <button type="submit" id="submit">Add</button>
+          <button type="button" id="clearList">Clear</button>
+        </form>
+      </div>
+
+      <div class="table-section">
+        <table>
+          <thead>
+            <tr>
+              <th>FirstName</th>
+              <th>LastName</th>
+              <th>Email</th>
+              <th>Phone Number</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+    <script src="app.js"></script>
+  </body>
+</html>
