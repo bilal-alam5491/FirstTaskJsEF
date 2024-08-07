@@ -2,6 +2,7 @@ let tableBody = document.querySelector("tbody");
 let form = document.querySelector(".form");
 let submitBtn = document.querySelector("#submit");
 let clearBtn = document.querySelector("#clearList");
+let searchInput = document.querySelector("#searchInput");
 
 let firstNameInput = document.querySelector("#firstname");
 let lastNameInput = document.querySelector("#lastname");
@@ -12,10 +13,10 @@ let userData = JSON.parse(localStorage.getItem("userData")) || [];
 
 let updateIndex = -1;
 
-const loadTable = () => {
+const loadTable = (data = userData) => {
   tableBody.innerHTML = "";
-  if (userData) {
-    userData.forEach((user, index) => {
+  if (data) {
+    data.forEach((user, index) => {
       let tr = document.createElement("tr");
 
       let tdFirstname = document.createElement("td");
@@ -144,4 +145,28 @@ clearBtn.addEventListener("click", (event) => {
   userData = [];
   localStorage.setItem("userData", JSON.stringify(userData));
   loadTable();
+  form.reset();
+
 });
+
+searchInput.addEventListener("keydown", (event) => {
+  let value = searchInput.value;
+  searchQuery(value);
+});
+
+function searchQuery(searchItem) {
+  if (searchItem == "") {
+    loadTable();
+    return;
+  }
+
+  let filteredData = userData.filter((user) => {
+    return Object.values(user).some((value) =>
+      value.toString().toLowerCase().includes(searchItem.toLowerCase())
+    );
+  });
+
+  loadTable(filteredData);
+  form.reset();
+
+}
