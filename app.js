@@ -3,6 +3,7 @@ let form = document.querySelector(".form");
 let submitBtn = document.querySelector("#submit");
 let clearBtn = document.querySelector("#clearList");
 let searchInput = document.querySelector("#searchInput");
+let paginationDiv = document.querySelector("#pagination");
 
 let firstNameInput = document.querySelector("#firstname");
 let lastNameInput = document.querySelector("#lastname");
@@ -13,54 +14,125 @@ let userData = JSON.parse(localStorage.getItem("userData")) || [];
 
 let updateIndex = -1;
 
+let rowsPerPage = 5;
+let currentPage = 0;
+
 const loadTable = (data = userData) => {
   tableBody.innerHTML = "";
-  if (data) {
-    data.forEach((user, index) => {
-      let tr = document.createElement("tr");
+  paginationDiv.innerHTML = "";
 
-      let tdFirstname = document.createElement("td");
-      let tdLastName = document.createElement("td");
-      let tdEmail = document.createElement("td");
-      let tdPhone = document.createElement("td");
-      let tdActions = document.createElement("td");
+  data.forEach((user, index) => {
+    let tr = document.createElement("tr");
 
-      let deleteButton = document.createElement("button");
-      let updateButton = document.createElement("button");
-      let duplicateButton = document.createElement("button");
+    let tdFirstname = document.createElement("td");
+    let tdLastName = document.createElement("td");
+    let tdEmail = document.createElement("td");
+    let tdPhone = document.createElement("td");
+    let tdActions = document.createElement("td");
 
-      deleteButton.innerText = "Delete";
-      updateButton.innerText = "Update";
-      duplicateButton.innerText = "Duplicate";
+    let deleteButton = document.createElement("button");
+    let updateButton = document.createElement("button");
+    let duplicateButton = document.createElement("button");
 
-      deleteButton.addEventListener("click", () => {
-        deleteUser(index);
-      });
+    deleteButton.innerText = "Delete";
+    updateButton.innerText = "Update";
+    duplicateButton.innerText = "Duplicate";
 
-      updateButton.addEventListener("click", () => {
-        updateUser(index);
-      });
-      duplicateButton.addEventListener("click", () => {
-        duplicateUser(index);
-      });
-
-      tdFirstname.innerText = user.firstName;
-      tdLastName.innerText = user.lastName;
-      tdEmail.innerText = user.email;
-      tdPhone.innerText = user.phoneNumber;
-
-      tdActions.appendChild(deleteButton);
-      tdActions.appendChild(updateButton);
-      tdActions.appendChild(duplicateButton);
-
-      tableBody.append(tr);
-      tr.appendChild(tdFirstname);
-      tr.appendChild(tdLastName);
-      tr.appendChild(tdEmail);
-      tr.appendChild(tdPhone);
-      tr.appendChild(tdActions);
+    deleteButton.addEventListener("click", () => {
+      deleteUser(index);
     });
+
+    updateButton.addEventListener("click", () => {
+      updateUser(index);
+    });
+
+    duplicateButton.addEventListener("click", () => {
+      duplicateUser(index);
+    });
+
+    tdFirstname.innerText = user.firstName;
+    tdLastName.innerText = user.lastName;
+    tdEmail.innerText = user.email;
+    tdPhone.innerText = user.phoneNumber;
+
+    tdActions.appendChild(deleteButton);
+    tdActions.appendChild(updateButton);
+    tdActions.appendChild(duplicateButton);
+
+    tr.appendChild(tdFirstname);
+    tr.appendChild(tdLastName);
+    tr.appendChild(tdEmail);
+    tr.appendChild(tdPhone);
+    tr.appendChild(tdActions);
+    tableBody.append(tr);
+  });
+
+  if(!data.length== 0)
+  createPageButtons(data);
+  showPage(currentPage);
+};
+
+const showPage = (page) => {
+  const startIndex = page * rowsPerPage;
+  const endIndex = startIndex + rowsPerPage;
+  const items = Array.from(tableBody.getElementsByTagName('tr'));
+
+  items.forEach((item, index) => {
+    item.classList.toggle('hidden', index < startIndex || index >= endIndex);
+  });
+
+  updateActiveButtonStates();
+};
+
+const createPageButtons = (data) => {
+  const totalPages = Math.ceil(data.length / rowsPerPage);
+  const paginationContainer = document.createElement('div');
+  paginationContainer.classList.add('pagination');
+  paginationDiv.appendChild(paginationContainer);
+
+  // Previous button
+  const prevButton = document.createElement('button');
+  prevButton.textContent = "Prev";
+  prevButton.addEventListener('click', () => {
+    if (currentPage > 0) {
+      currentPage--;
+      showPage(currentPage);
+    }
+  });
+  paginationContainer.appendChild(prevButton);
+
+  for (let i = 0; i < totalPages; i++) {
+    const pageButton = document.createElement('button');
+    pageButton.textContent = i + 1;
+    pageButton.addEventListener('click', () => {
+      currentPage = i;
+      showPage(currentPage);
+    });
+
+    paginationContainer.appendChild(pageButton);
   }
+
+  // Next button
+  const nextButton = document.createElement('button');
+  nextButton.textContent = "Next";
+  nextButton.addEventListener('click', () => {
+    if (currentPage < totalPages - 1) {
+      currentPage++;
+      showPage(currentPage);
+    }
+  });
+  paginationContainer.appendChild(nextButton);
+};
+
+const updateActiveButtonStates = () => {
+  const pageButtons = document.querySelectorAll('.pagination button');
+  pageButtons.forEach((button, index) => {
+    if (index === currentPage + 1) {
+      button.classList.add('active');
+    } else {
+      button.classList.remove('active');
+    }
+  });
 };
 
 loadTable();
@@ -115,7 +187,7 @@ form.addEventListener("submit", (event) => {
 function deleteUser(index) {
   let text = "Do you want to delete that particular record??";
 
-  if (confirm(text) == true) {
+  if (confirm(text)) {
     userData.splice(index, 1);
     localStorage.setItem("userData", JSON.stringify(userData));
     loadTable();
@@ -141,21 +213,20 @@ function updateUser(index) {
   submitBtn.innerHTML = "Update";
 }
 
-clearBtn.addEventListener("click", (event) => {
+clearBtn.addEventListener("click", () => {
   userData = [];
   localStorage.setItem("userData", JSON.stringify(userData));
   loadTable();
   form.reset();
-
 });
 
-searchInput.addEventListener("keydown", (event) => {
+searchInput.addEventListener("input", () => {
   let value = searchInput.value;
   searchQuery(value);
 });
 
 function searchQuery(searchItem) {
-  if (searchItem == "") {
+  if (searchItem === "") {
     loadTable();
     return;
   }
@@ -168,5 +239,4 @@ function searchQuery(searchItem) {
 
   loadTable(filteredData);
   form.reset();
-
 }
